@@ -1,9 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import dayjs from 'dayjs';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Header from '../components/Header';
 import RhodiumText from '../components/RhodiumText';
+import {getCompletedTasksFromStorage} from '../storage/storage';
 import {colors} from '../styles/colors';
 
 const Section: React.FC<{title: string; dark?: boolean; value: number}> = ({
@@ -20,18 +22,47 @@ const Section: React.FC<{title: string; dark?: boolean; value: number}> = ({
 };
 
 const StatisticsScreen: React.FC = () => {
+  const [completedTasks, setCompletedTasks] = useState<string[]>([]);
+  useEffect(() => {
+    const init = async () => {
+      setCompletedTasks((await getCompletedTasksFromStorage()) || []);
+    };
+    init();
+  }, []);
+  console.log(completedTasks);
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.root}>
         <Header title="СТАТИСТИКА" />
         <View style={styles.body}>
           <View style={styles.top}>
-            <Section title="Сегодня" value={6} />
-            <Section title="Вчера" value={6} />
-            <Section title="За неделю" value={6} />
+            <Section
+              title="Сегодня"
+              value={
+                completedTasks?.filter(
+                  date => dayjs(date).diff(dayjs(), 'days') === 0,
+                ).length
+              }
+            />
+            <Section
+              title="Вчера"
+              value={
+                completedTasks?.filter(
+                  date => dayjs(date).diff(dayjs(), 'days') === -1,
+                ).length
+              }
+            />
+            <Section
+              title="За неделю"
+              value={
+                completedTasks?.filter(
+                  date => dayjs(date).diff(dayjs(), 'days') <= 6,
+                ).length
+              }
+            />
           </View>
           <View style={styles.bottom}>
-            <Section dark title="Всего" value={6} />
+            <Section dark title="Всего" value={completedTasks.length} />
           </View>
         </View>
       </View>

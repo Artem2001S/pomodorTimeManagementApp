@@ -6,7 +6,7 @@ import RhodiumText from './RhodiumText';
 
 interface ButtonProps {
   rootStyle?: StyleProp<ViewStyle>;
-  type: 'transparent' | 'white';
+  type?: 'transparent' | 'white';
   onPress?: () => void;
 }
 

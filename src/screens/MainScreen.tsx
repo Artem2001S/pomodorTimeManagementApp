@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
   Pressable,
@@ -7,7 +8,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import PushNotification from 'react-native-push-notification';
 
 import {useAppContext} from '../contexts/AppContext';
 import {colors} from '../styles/colors';
@@ -18,12 +18,20 @@ import StatisticsIcon from '../components/Icons/StatisticsIcon';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import SettingsIcon from '../components/Icons/SettingsIcon';
 import Button from '../components/Button';
+import RhodiumText from '../components/RhodiumText';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import {fancyTimeFormat} from '../utils/time';
+import YesNoModal from '../components/YesNoModal';
+
+dayjs.extend(duration);
 
 type MainScreenProps = NativeStackScreenProps<RootStackParamList, 'Main'>;
 
 const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
   const state = useAppContext();
   const {bottom} = useSafeAreaInsets();
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -34,7 +42,14 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
             <StatisticsIcon />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() =>
+              state.isTimerActive
+                ? Alert.alert(
+                    '',
+                    'Завершите текущую задачу, чтобы перейти в настройки',
+                  )
+                : navigation.navigate('Settings')
+            }
             style={styles.settingsBtn}>
             <SettingsIcon />
           </TouchableOpacity>
@@ -48,50 +63,65 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
               />
             </View>
             <View style={styles.tomatoShadow} />
-            <View style={styles.circleTomato}></View>
+            <View style={styles.circleTomato}>
+              <RhodiumText style={styles.tomatoText}>
+                {state.currentTimerType === 'break' ? 'Отдых' : 'Работа'}
+              </RhodiumText>
+              <RhodiumText style={styles.tomatoText}>
+                {!state.isTimerActive
+                  ? fancyTimeFormat(state.calculateSecondsNeedToBeDone())
+                  : fancyTimeFormat(
+                      state.secondsNeedToBeDone - state.secondsPassed,
+                    )}
+              </RhodiumText>
+            </View>
           </View>
         </View>
         <View style={styles.btns}>
           <Button
             rootStyle={styles.btn}
             onPress={() => {
-              PushNotification.createChannel(
-                {
-                  channelId: 'mychannel',
-                  channelName: 'My channel',
-                  vibrate: true,
-                },
-                created => {
-                  PushNotification.localNotification({
-                    channelId: 'mychannel',
-                    autoCancel: true,
-                    subText: 'Notification',
-                    title: 'New notification received',
-                    message: `Notif ID:`,
-                    vibrate: true,
-                    vibration: 300,
-                    playSound: true,
-                    soundName: 'default',
-                    ignoreInForeground: false,
-                    importance: 'high',
-                    invokeApp: true,
-                    allowWhileIdle: true,
-                    priority: 'high',
-                    visibility: 'public',
-                  });
-                },
-              );
+              state.isTimerActive && !state.isTimerStopped
+                ? state.stopTimer()
+                : state.startTimer();
             }}
             type="white">
-            {state.isTimerActive ? 'Остановить' : 'Запустить'}
+            {state.isTimerActive && !state.isTimerStopped
+              ? 'Остановить'
+              : 'Запустить'}
           </Button>
-          {state.currentTimerType === 'break' && (
-            <Button rootStyle={styles.btn} type="transparent">
+          {state.currentTimerType === 'break' && !state.isTimerActive && (
+            <Button
+              rootStyle={styles.btn}
+              onPress={() => {
+                state.skipBreak();
+              }}
+              type="transparent">
               Пропустить
+            </Button>
+          )}
+          {state.isTimerActive === true && (
+            <Button
+              rootStyle={styles.btn}
+              onPress={() => {
+                setModalVisible(true);
+              }}
+              type="transparent">
+              Отменить
             </Button>
           )}
         </View>
       </View>
+      {modalVisible && (
+        <YesNoModal
+          title={`Вы \nуверены?`}
+          onDismiss={() => setModalVisible(false)}
+          onConfirm={() => {
+            state.cancelTimer();
+            setModalVisible(false);
+          }}
+        />
+      )}
       <Pressable
         onPress={() => navigation.navigate('Policy')}
         style={[styles.policyBtn, {bottom: 20 + bottom}]}>
@@ -138,6 +168,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
     alignItems: 'center',
   },
+  tomatoText: {
+    color: colors.white,
+    fontSize: TOMATO_SIZE * 0.15,
+    alignSelf: 'center',
+  },
   safeArea: {
     // backgroundColor: colors.tomato,
     flex: 1,
@@ -148,6 +183,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   circleTomato: {
+    justifyContent: 'center',
     backgroundColor: '#CD2020',
     borderRadius: TOMATO_SIZE,
     borderWidth: 10,

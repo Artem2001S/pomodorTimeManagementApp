@@ -6,9 +6,19 @@ import RhodiumText from '../components/RhodiumText';
 import {Settings, useAppContext} from '../contexts/AppContext';
 import {colors} from '../styles/colors';
 import {Slider} from '@miblanchard/react-native-slider';
+import {
+  saveBreakMinutes,
+  saveVibrationEnabled,
+  saveWorkMinutes,
+} from '../storage/storage';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import CheckboxCheckedIcon from '../components/Icons/CheckboxCheckedIcon';
+import CheckboxUncheckedIcon from '../components/Icons/CheckboxUncheckedIcon';
 
 const SettingsScreen: React.FC = () => {
-  const {settings, setSettings} = useAppContext();
+  const {settings, setSettings, vibrationEnabled, setVibrationEnabled} =
+    useAppContext();
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.root}>
@@ -23,6 +33,9 @@ const SettingsScreen: React.FC = () => {
           maximumTrackTintColor="#B7B7B7"
           thumbTintColor="white"
           step={1}
+          onSlidingComplete={value => {
+            saveWorkMinutes(value as number);
+          }}
           thumbStyle={styles.thumb}
           onValueChange={value => {
             const settings_: Settings = {
@@ -31,7 +44,7 @@ const SettingsScreen: React.FC = () => {
             };
             setSettings(settings_);
           }}
-          minimumValue={10}
+          minimumValue={1}
           maximumValue={60}
         />
         <RhodiumText style={[styles.title]}>
@@ -48,6 +61,9 @@ const SettingsScreen: React.FC = () => {
           thumbTintColor="white"
           step={1}
           thumbStyle={styles.thumb}
+          onSlidingComplete={value => {
+            saveBreakMinutes(value as number);
+          }}
           onValueChange={value => {
             const settings_: Settings = {
               ...settings,
@@ -61,6 +77,20 @@ const SettingsScreen: React.FC = () => {
         <RhodiumText style={styles.title}>
           {settings.breakDurationInMin} минут
         </RhodiumText>
+
+        <TouchableOpacity
+          onPress={() => {
+            setVibrationEnabled(!vibrationEnabled);
+            saveVibrationEnabled(!vibrationEnabled);
+          }}
+          style={styles.vibration}>
+          {vibrationEnabled ? (
+            <CheckboxCheckedIcon />
+          ) : (
+            <CheckboxUncheckedIcon />
+          )}
+          <RhodiumText style={styles.vibrationTitle}>Вибрация</RhodiumText>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -74,8 +104,19 @@ const styles = StyleSheet.create({
   first: {
     marginTop: 40,
   },
+  vibration: {
+    marginTop: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
   second: {
     marginTop: 30,
+  },
+  vibrationTitle: {
+    marginLeft: 5,
+    color: colors.white,
+    fontSize: 24,
   },
   thumb: {
     width: 11,
