@@ -28,7 +28,7 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
       <View style={[styles.root]}>
         <View style={styles.top}>
           <View style={[styles.circle]} />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Statistics')}>
             <StatisticsIcon />
           </TouchableOpacity>
           <TouchableOpacity
