@@ -1,3 +1,3 @@
 ### React Native App
 
-## Pomidoro time management
+## Pomodoro time management
