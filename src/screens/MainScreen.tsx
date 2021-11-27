@@ -7,6 +7,8 @@ import {
   Text,
   View,
 } from 'react-native';
+import PushNotification from 'react-native-push-notification';
+
 import {useAppContext} from '../contexts/AppContext';
 import {colors} from '../styles/colors';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -50,7 +52,37 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
           </View>
         </View>
         <View style={styles.btns}>
-          <Button rootStyle={styles.btn} type="white">
+          <Button
+            rootStyle={styles.btn}
+            onPress={() => {
+              PushNotification.createChannel(
+                {
+                  channelId: 'mychannel',
+                  channelName: 'My channel',
+                  vibrate: true,
+                },
+                created => {
+                  PushNotification.localNotification({
+                    channelId: 'mychannel',
+                    autoCancel: true,
+                    subText: 'Notification',
+                    title: 'New notification received',
+                    message: `Notif ID:`,
+                    vibrate: true,
+                    vibration: 300,
+                    playSound: true,
+                    soundName: 'default',
+                    ignoreInForeground: false,
+                    importance: 'high',
+                    invokeApp: true,
+                    allowWhileIdle: true,
+                    priority: 'high',
+                    visibility: 'public',
+                  });
+                },
+              );
+            }}
+            type="white">
             {state.isTimerActive ? 'Остановить' : 'Запустить'}
           </Button>
           {state.currentTimerType === 'break' && (
