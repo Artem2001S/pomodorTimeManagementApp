@@ -10,6 +10,8 @@ const defaultState: AppState = {
   setIsTimerActive: () => {},
   secondsPassed: 0,
   setSecondsPassed: () => {},
+  currentTimerType: 'work',
+  setCurrentTimerType: () => {},
 };
 
 const AppContext = createContext<AppState>(defaultState);
@@ -26,6 +28,8 @@ export interface AppState {
   setIsTimerActive: (isTimerActive: boolean) => void;
   secondsPassed: number;
   setSecondsPassed: (seconds: number) => void;
+  currentTimerType: 'work' | 'break';
+  setCurrentTimerType: (type: 'work' | 'break') => void;
 }
 
 const AppContextProvider: React.FC = ({children}) => {
@@ -35,6 +39,9 @@ const AppContextProvider: React.FC = ({children}) => {
   });
   const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
   const [secondsPassed, setSecondsPassed] = useState<number>(0);
+  const [currentTimerType, setCurrentTimerType] = useState<'work' | 'break'>(
+    'work',
+  );
 
   return (
     <AppContext.Provider
@@ -45,6 +52,8 @@ const AppContextProvider: React.FC = ({children}) => {
         setIsTimerActive,
         secondsPassed,
         setSecondsPassed,
+        currentTimerType,
+        setCurrentTimerType,
       }}>
       {children}
     </AppContext.Provider>

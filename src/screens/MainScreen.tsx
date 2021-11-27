@@ -15,12 +15,14 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import StatisticsIcon from '../components/Icons/StatisticsIcon';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import SettingsIcon from '../components/Icons/SettingsIcon';
+import Button from '../components/Button';
 
 type MainScreenProps = NativeStackScreenProps<RootStackParamList, 'Main'>;
 
 const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
   const state = useAppContext();
-  const {top, bottom} = useSafeAreaInsets();
+  const {bottom} = useSafeAreaInsets();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={[styles.root]}>
@@ -29,7 +31,9 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
           <TouchableOpacity>
             <StatisticsIcon />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingsBtn}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Settings')}
+            style={styles.settingsBtn}>
             <SettingsIcon />
           </TouchableOpacity>
         </View>
@@ -45,10 +49,20 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
             <View style={styles.circleTomato}></View>
           </View>
         </View>
+        <View style={styles.btns}>
+          <Button rootStyle={styles.btn} type="white">
+            {state.isTimerActive ? 'Остановить' : 'Запустить'}
+          </Button>
+          {state.currentTimerType === 'break' && (
+            <Button rootStyle={styles.btn} type="transparent">
+              Пропустить
+            </Button>
+          )}
+        </View>
       </View>
       <Pressable
         onPress={() => navigation.navigate('Policy')}
-        style={[styles.policyBtn, {bottom: 10 + bottom}]}>
+        style={[styles.policyBtn, {bottom: 20 + bottom}]}>
         <Text style={styles.policyText}>Политика конфиденциальности</Text>
       </Pressable>
     </SafeAreaView>
@@ -62,9 +76,19 @@ const TOMATO_GREEN_SIZE = TOMATO_SIZE * 0.7;
 // const PADDING_HORIZONTAL =
 const styles = StyleSheet.create({
   root: {
+    paddingBottom: 40,
     flex: 1,
     backgroundColor: colors.tomato,
     overflow: 'hidden',
+  },
+  btns: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  btn: {
+    width: '70%',
+    marginTop: Dimensions.get('screen').height * 0.02,
+    alignSelf: 'center',
   },
   tomatoShadow: {
     position: 'absolute',
@@ -105,7 +129,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   body: {
-    justifyContent: 'center',
     alignItems: 'center',
   },
   tomato: {},
