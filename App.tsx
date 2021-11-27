@@ -7,11 +7,7 @@ import {StatusBar} from 'react-native';
 const App = () => {
   return (
     <NavigationContainer>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="black"
-        translucent={true}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
       <AppContextProvider>
         <RootNavigation />
       </AppContextProvider>
