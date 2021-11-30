@@ -4,6 +4,7 @@ import PushNotification, {
 
 export const showPush = (
   details: PushNotificationObject,
+  timestamp: number,
   vibration?: boolean,
 ) => {
   const id = Date.now().toString();

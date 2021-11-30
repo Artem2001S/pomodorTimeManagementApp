@@ -41,11 +41,11 @@
 		6423831EA8574132BED9D8CC /* libPods-tomatoTimeManagementApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tomatoTimeManagementApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C97AB639B58BBB4B15BBE30 /* Pods-tomatoTimeManagementApp-tomatoTimeManagementAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tomatoTimeManagementApp-tomatoTimeManagementAppTests.debug.xcconfig"; path = "Target Support Files/Pods-tomatoTimeManagementApp-tomatoTimeManagementAppTests/Pods-tomatoTimeManagementApp-tomatoTimeManagementAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = tomatoTimeManagementApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A98FA7B76D8B46F59C56A0E8 /* RhodiumLibre-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "RhodiumLibre-Regular.ttf"; path = "../src/assets/fonts/RhodiumLibre-Regular.ttf"; sourceTree = "<group>"; };
 		ABFE59519B596E51CEFDCCC0 /* libPods-tomatoTimeManagementApp-tomatoTimeManagementAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tomatoTimeManagementApp-tomatoTimeManagementAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A881CF5CF3F2B244570E2A /* Pods-tomatoTimeManagementApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tomatoTimeManagementApp.debug.xcconfig"; path = "Target Support Files/Pods-tomatoTimeManagementApp/Pods-tomatoTimeManagementApp.debug.xcconfig"; sourceTree = "<group>"; };
 		D00AAFFCFCFDA5787532823F /* Pods-tomatoTimeManagementApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tomatoTimeManagementApp.release.xcconfig"; path = "Target Support Files/Pods-tomatoTimeManagementApp/Pods-tomatoTimeManagementApp.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		A98FA7B76D8B46F59C56A0E8 /* RhodiumLibre-Regular.ttf */ = {isa = PBXFileReference; name = "RhodiumLibre-Regular.ttf"; path = "../src/assets/fonts/RhodiumLibre-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +108,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4453AED2C72D4D18B258286A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A98FA7B76D8B46F59C56A0E8 /* RhodiumLibre-Regular.ttf */,
+			);
+			name = Resources;
+			path = "";
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,15 +160,6 @@
 			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
-		};
-		4453AED2C72D4D18B258286A /* Resources */ = {
-			isa = "PBXGroup";
-			children = (
-				A98FA7B76D8B46F59C56A0E8 /* RhodiumLibre-Regular.ttf */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-			path = "";
 		};
 /* End PBXGroup section */
 

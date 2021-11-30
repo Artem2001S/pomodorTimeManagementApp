@@ -8,12 +8,10 @@ import React, {
 } from 'react';
 import useInterval from '../hooks/useInterval';
 import {
-  addCompletedTaskToStorage,
   getBreakMinutes,
   getVibrationEnabled,
   getWorkMinutes,
 } from '../storage/storage';
-import {showPush} from '../utils/notifications';
 
 const defaultState: AppState = {
   settings: {
@@ -39,6 +37,11 @@ const defaultState: AppState = {
   skipBreak: () => {},
   vibrationEnabled: true,
   setVibrationEnabled: () => {},
+
+  timerStartTimeStamp: undefined,
+  setTimerStartTimeStamp: () => {},
+  minutesRemains: undefined,
+  setMinutesRemains: () => {},
 };
 
 const AppContext = createContext<AppState>(defaultState);
@@ -67,6 +70,12 @@ export interface AppState {
   skipBreak: () => void;
   setVibrationEnabled: (enabled: boolean) => void;
   cancelTimer: () => void;
+
+  timerStartTimeStamp: number | undefined;
+  setTimerStartTimeStamp: (minutes: number) => void;
+
+  minutesRemains: number | undefined;
+  setMinutesRemains: (minutes: number) => void;
 }
 
 const AppContextProvider: React.FC = ({children}) => {
@@ -82,6 +91,14 @@ const AppContextProvider: React.FC = ({children}) => {
   );
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
 
+  const [timerStartTimeStamp, setTimerStartTimeStamp] = useState<
+    number | undefined
+  >(undefined);
+
+  const [minutesRemains, setMinutesRemains] = useState<number | undefined>(
+    undefined,
+  );
+
   useEffect(() => {
     const init = async () => {
       const breakMinutes = await getBreakMinutes();
@@ -90,10 +107,9 @@ const AppContextProvider: React.FC = ({children}) => {
 
       if (breakMinutes || workMinutes) {
         setSettings({
-          breakDurationInMin: Number(breakMinutes) || 10,
+          breakDurationInMin: Number(breakMinutes) || 5,
           tomatoDurationsInMin: Number(workMinutes) || 25,
         });
-        console.log('v', vibrationEnabled_);
         vibrationEnabled_ !== null &&
           setVibrationEnabled(vibrationEnabled_ as boolean);
       }
@@ -126,6 +142,7 @@ const AppContextProvider: React.FC = ({children}) => {
       const seconds = calculateSecondsNeedToBeDone();
       setSecondsNeedToBeDone(seconds);
       setIsTimerActive(true);
+      setTimerStartTimeStamp(dayjs().valueOf());
     }
   }, [calculateSecondsNeedToBeDone, isTimerStopped]);
 
@@ -137,6 +154,7 @@ const AppContextProvider: React.FC = ({children}) => {
 
   const cancelTimer = useCallback(() => {
     setIsTimerActive(false);
+    setTimerStartTimeStamp(undefined);
     setIsTimerStopped(false);
     setSecondsNeedToBeDone(0);
     setSecondsPassed(0);
@@ -149,8 +167,13 @@ const AppContextProvider: React.FC = ({children}) => {
 
   useInterval(
     () => {
-      const secondsPassed_ = secondsPassed + 1;
-      setSecondsPassed(prev => prev + 1);
+      const secondsPassed_ = dayjs().diff(
+        dayjs(timerStartTimeStamp),
+        'seconds',
+      );
+      console.log(secondsPassed_);
+      setSecondsPassed(secondsPassed_);
+
       if (secondsPassed_ === secondsNeedToBeDone) {
         // task completed
         setIsTimerActive(false);
@@ -158,22 +181,22 @@ const AppContextProvider: React.FC = ({children}) => {
         setIsTimerStopped(false);
         setCurrentTimerType(currentTimerType === 'break' ? 'work' : 'break');
 
-        if (currentTimerType === 'work') {
-          showPush(
-            {
-              message: 'Время отдохнуть!',
-            },
-            vibrationEnabled,
-          );
-          addCompletedTaskToStorage(dayjs().toISOString());
-        } else {
-          showPush(
-            {
-              message: 'Надеюсь успели отдохнуть! Продолжим работать ?',
-            },
-            vibrationEnabled,
-          );
-        }
+        // if (currentTimerType === 'work') {
+        //   showPush(
+        //     {
+        //       message: 'Время отдохнуть!',
+        //     },
+        //     vibrationEnabled,
+        //   );
+        //   addCompletedTaskToStorage(dayjs().toISOString());
+        // } else {
+        //   showPush(
+        //     {
+        //       message: 'Надеюсь успели отдохнуть! Продолжим работать ?',
+        //     },
+        //     vibrationEnabled,
+        //   );
+        // }
       }
     },
     isTimerActive && !isTimerStopped ? 950 : null,
@@ -200,6 +223,10 @@ const AppContextProvider: React.FC = ({children}) => {
         vibrationEnabled,
         setVibrationEnabled,
         cancelTimer,
+        timerStartTimeStamp,
+        setTimerStartTimeStamp,
+        minutesRemains,
+        setMinutesRemains,
       }}>
       {children}
     </AppContext.Provider>

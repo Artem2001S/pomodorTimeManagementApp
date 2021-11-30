@@ -44,7 +44,7 @@ const SettingsScreen: React.FC = () => {
             };
             setSettings(settings_);
           }}
-          minimumValue={1}
+          minimumValue={10}
           maximumValue={60}
         />
         <RhodiumText style={[styles.title]}>
