@@ -15,9 +15,10 @@ export const showPush = (
       vibrate: vibration,
     },
     () => {
-      PushNotification.localNotification({
+      PushNotification.localNotificationSchedule({
         ...details,
         channelId: id,
+        date: new Date(timestamp),
         vibrate: vibration,
       });
     },

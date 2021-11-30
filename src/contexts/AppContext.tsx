@@ -6,12 +6,15 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
+import PushNotification from 'react-native-push-notification';
 import useInterval from '../hooks/useInterval';
 import {
+  addCompletedTaskToStorage,
   getBreakMinutes,
   getVibrationEnabled,
   getWorkMinutes,
 } from '../storage/storage';
+import {showPush} from '../utils/notifications';
 
 const defaultState: AppState = {
   settings: {
@@ -136,25 +139,64 @@ const AppContextProvider: React.FC = ({children}) => {
   ]);
 
   const startTimer = useCallback(() => {
+    let pushTimestamp;
     if (isTimerStopped) {
       setIsTimerStopped(false);
+
+      setTimerStartTimeStamp(dayjs().valueOf() - secondsPassed * 1000);
+      pushTimestamp = dayjs()
+        .add(secondsNeedToBeDone - secondsPassed, 'seconds')
+        .valueOf();
     } else {
       const seconds = calculateSecondsNeedToBeDone();
+      console.log('seconds', seconds);
+      pushTimestamp = dayjs().add(seconds, 'seconds').valueOf();
       setSecondsNeedToBeDone(seconds);
       setIsTimerActive(true);
       setTimerStartTimeStamp(dayjs().valueOf());
     }
-  }, [calculateSecondsNeedToBeDone, isTimerStopped]);
+
+    if (currentTimerType === 'work') {
+      showPush(
+        {
+          message: 'Время отдохнуть!',
+        },
+        pushTimestamp,
+        vibrationEnabled,
+      );
+    } else {
+      showPush(
+        {
+          message: 'Надеюсь успели отдохнуть! Продолжим работать ?',
+        },
+        pushTimestamp,
+        vibrationEnabled,
+      );
+    }
+  }, [
+    calculateSecondsNeedToBeDone,
+    currentTimerType,
+    isTimerStopped,
+    secondsNeedToBeDone,
+    secondsPassed,
+    vibrationEnabled,
+  ]);
 
   const stopTimer = useCallback(() => {
     if (isTimerActive) {
       setIsTimerStopped(true);
+      PushNotification.cancelAllLocalNotifications();
+
+      setTimerStartTimeStamp(dayjs().valueOf());
     }
   }, [isTimerActive]);
 
   const cancelTimer = useCallback(() => {
     setIsTimerActive(false);
     setTimerStartTimeStamp(undefined);
+    setTimerStartTimeStamp(undefined);
+    PushNotification.cancelAllLocalNotifications();
+
     setIsTimerStopped(false);
     setSecondsNeedToBeDone(0);
     setSecondsPassed(0);
@@ -171,35 +213,21 @@ const AppContextProvider: React.FC = ({children}) => {
         dayjs(timerStartTimeStamp),
         'seconds',
       );
-      console.log(secondsPassed_);
       setSecondsPassed(secondsPassed_);
 
-      if (secondsPassed_ === secondsNeedToBeDone) {
+      if (secondsPassed_ >= secondsNeedToBeDone) {
         // task completed
         setIsTimerActive(false);
         setSecondsPassed(0);
         setIsTimerStopped(false);
         setCurrentTimerType(currentTimerType === 'break' ? 'work' : 'break');
 
-        // if (currentTimerType === 'work') {
-        //   showPush(
-        //     {
-        //       message: 'Время отдохнуть!',
-        //     },
-        //     vibrationEnabled,
-        //   );
-        //   addCompletedTaskToStorage(dayjs().toISOString());
-        // } else {
-        //   showPush(
-        //     {
-        //       message: 'Надеюсь успели отдохнуть! Продолжим работать ?',
-        //     },
-        //     vibrationEnabled,
-        //   );
-        // }
+        if (currentTimerType === 'work') {
+          addCompletedTaskToStorage(dayjs().toISOString());
+        }
       }
     },
-    isTimerActive && !isTimerStopped ? 950 : null,
+    isTimerActive && !isTimerStopped ? 999 : null,
   );
 
   return (
