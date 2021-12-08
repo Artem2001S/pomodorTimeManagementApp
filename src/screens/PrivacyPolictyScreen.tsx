@@ -2,14 +2,13 @@
 import React from 'react';
 import {ActivityIndicator, Dimensions, StyleSheet, View} from 'react-native';
 import WebView from 'react-native-webview';
-
-const policyUrl = 'https://google.com';
+import {POLICY_URL} from '../constants';
 
 const PrivacyPolicyScreen = () => {
   return (
     <View style={[styles.root]}>
       <WebView
-        source={{uri: policyUrl}}
+        source={{uri: POLICY_URL}}
         startInLoadingState
         renderLoading={() => (
           <View

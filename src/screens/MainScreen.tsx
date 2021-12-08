@@ -100,7 +100,7 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
               Пропустить
             </Button>
           )}
-          {state.isTimerActive === true && (
+          {state.isTimerActive === true ? (
             <Button
               rootStyle={styles.btn}
               onPress={() => {
@@ -109,12 +109,18 @@ const MainScreen: React.FC<MainScreenProps> = ({navigation}) => {
               type="transparent">
               Отменить
             </Button>
+          ) : (
+            <Button
+              rootStyle={styles.btn}
+              onPress={() => {}}
+              type="transparent"
+            />
           )}
         </View>
       </View>
       {modalVisible && (
         <YesNoModal
-          title={`Вы \nуверены?`}
+          title={'Вы \nуверены?'}
           onDismiss={() => setModalVisible(false)}
           onConfirm={() => {
             state.cancelTimer();

@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from 'react';
 import PushNotification from 'react-native-push-notification';
+import {PUSH_TITLE} from '../constants';
 import useInterval from '../hooks/useInterval';
 import {
   addCompletedTaskToStorage,
@@ -43,8 +44,6 @@ const defaultState: AppState = {
 
   timerStartTimeStamp: undefined,
   setTimerStartTimeStamp: () => {},
-  minutesRemains: undefined,
-  setMinutesRemains: () => {},
 };
 
 const AppContext = createContext<AppState>(defaultState);
@@ -76,9 +75,6 @@ export interface AppState {
 
   timerStartTimeStamp: number | undefined;
   setTimerStartTimeStamp: (minutes: number) => void;
-
-  minutesRemains: number | undefined;
-  setMinutesRemains: (minutes: number) => void;
 }
 
 const AppContextProvider: React.FC = ({children}) => {
@@ -97,10 +93,6 @@ const AppContextProvider: React.FC = ({children}) => {
   const [timerStartTimeStamp, setTimerStartTimeStamp] = useState<
     number | undefined
   >(undefined);
-
-  const [minutesRemains, setMinutesRemains] = useState<number | undefined>(
-    undefined,
-  );
 
   useEffect(() => {
     const init = async () => {
@@ -129,8 +121,15 @@ const AppContextProvider: React.FC = ({children}) => {
         ? settings.breakDurationInMin
         : settings.tomatoDurationsInMin;
 
-    const doneDateTime = dayjs().add(minutes, 'minute');
-    const seconds = doneDateTime.diff(dayjs(), 'seconds');
+    let seconds = dayjs()
+      .add(minutes * 60, 'seconds')
+      .diff(dayjs(), 'seconds');
+    const str = seconds.toString();
+
+    // delay fix
+    if (str[str.length - 1] !== '0') {
+      seconds += 1;
+    }
     return seconds;
   }, [
     currentTimerType,
@@ -142,7 +141,7 @@ const AppContextProvider: React.FC = ({children}) => {
     let pushTimestamp;
     if (isTimerStopped) {
       setIsTimerStopped(false);
-
+      console.log('stopped');
       setTimerStartTimeStamp(dayjs().valueOf() - secondsPassed * 1000);
       pushTimestamp = dayjs()
         .add(secondsNeedToBeDone - secondsPassed, 'seconds')
@@ -159,6 +158,7 @@ const AppContextProvider: React.FC = ({children}) => {
     if (currentTimerType === 'work') {
       showPush(
         {
+          title: PUSH_TITLE,
           message: 'Время отдохнуть!',
         },
         pushTimestamp,
@@ -167,6 +167,7 @@ const AppContextProvider: React.FC = ({children}) => {
     } else {
       showPush(
         {
+          title: PUSH_TITLE,
           message: 'Надеюсь успели отдохнуть! Продолжим работать ?',
         },
         pushTimestamp,
@@ -193,14 +194,15 @@ const AppContextProvider: React.FC = ({children}) => {
 
   const cancelTimer = useCallback(() => {
     setIsTimerActive(false);
-    setTimerStartTimeStamp(undefined);
+    setCurrentTimerType(currentTimerType);
+
     setTimerStartTimeStamp(undefined);
     PushNotification.cancelAllLocalNotifications();
 
     setIsTimerStopped(false);
     setSecondsNeedToBeDone(0);
     setSecondsPassed(0);
-  }, []);
+  }, [currentTimerType]);
 
   const skipBreak = useCallback(() => {
     cancelTimer();
@@ -253,8 +255,6 @@ const AppContextProvider: React.FC = ({children}) => {
         cancelTimer,
         timerStartTimeStamp,
         setTimerStartTimeStamp,
-        minutesRemains,
-        setMinutesRemains,
       }}>
       {children}
     </AppContext.Provider>
